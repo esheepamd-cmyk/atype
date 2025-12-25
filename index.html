@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>@type — мини‑соцсеть</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #e9edf1;
+    }
+
+    /* Шапка */
+    .topbar {
+      height: 44px;
+      background: #4a76a8;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+    }
+    .topbar-logo {
+      font-weight: 700;
+      font-size: 18px;
+      margin-right: 16px;
+    }
+    .topbar-search {
+      flex: 1;
+    }
+    .topbar-search input {
+      width: 100%;
+      max-width: 260px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      border: none;
+      font-size: 13px;
+    }
+    .topbar-right {
+      margin-left: auto;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    /* Основной layout */
+    .layout {
+      max-width: 960px;
+      margin: 12px auto;
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr) 220px;
+      gap: 12px;
+      padding: 0 8px 24px;
+    }
+
+    .left-menu {
+      background: transparent;
+      font-size: 13px;
+    }
+    .left-menu-section {
+      margin-bottom: 10px;
+      background: #f5f7fa;
+      border-radius: 2px;
+      padding: 6px 0;
+    }
+    .left-menu a {
+      display: block;
+      padding: 3px 10px;
+      color: #2a5885;
+      text-decoration: none;
+      border-radius: 2px;
+    }
+    .left-menu a:hover {
+      background: #dfe6f1;
+    }
+    .left-menu .section-title {
+      padding: 3px 10px;
+      color: #777;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+
+    .content {
+      font-size: 13px;
+    }
+
+    .right-column {
+      font-size: 12px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 2px;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.08);
+      border: 1px solid #d3dde7;
+      margin-bottom: 10px;
+    }
+    .card-header {
+      padding: 6px 8px;
+      border-bottom: 1px solid #e5ebf1;
+      font-weight: 600;
+      font-size: 13px;
+      background: #f5f7fa;
+    }
+    .card-body {
+      padding: 8px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      color: #555;
+    }
+
+    select, input[type="text"], textarea {
+      width: 100%;
+      padding: 6px;
+      border-radius: 3px;
+      border: 1px solid #c5d0db;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 50px;
+      max-height: 150px;
+    }
+
+    button {
+      border: none;
+      border-radius: 3px;
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-primary {
+      background: #4a76a8;
+      color: #fff;
+    }
+    .btn-secondary {
+      background: #e5ebf1;
+      color: #2a5885;
+    }
+    .btn-danger {
+      background: #e53935;
+      color: #fff;
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .posts {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 420px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .post {
+      border-radius: 2px;
+      padding: 6px 8px;
+      background: #f5f7fa;
+      border: 1px solid #e5ebf1;
+    }
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 12px;
+      color: #777;
+    }
+    .post-author {
+      font-weight: 600;
+      color: #2a5885;
+    }
+    .post-time {
+      white-space: nowrap;
+    }
+    .post-text {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #000;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .empty {
