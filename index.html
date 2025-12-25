@@ -10,6 +10,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #e9edf1;
     }
+    a { color: #2a5885; }
 
     /* Шапка */
     .topbar {
@@ -42,7 +43,7 @@
       opacity: 0.9;
     }
 
-    /* Основной layout */
+    /* layout */
     .layout {
       max-width: 960px;
       margin: 12px auto;
@@ -53,7 +54,6 @@
     }
 
     .left-menu {
-      background: transparent;
       font-size: 13px;
     }
     .left-menu-section {
@@ -68,6 +68,7 @@
       color: #2a5885;
       text-decoration: none;
       border-radius: 2px;
+      cursor: pointer;
     }
     .left-menu a:hover {
       background: #dfe6f1;
@@ -111,7 +112,9 @@
       color: #555;
     }
 
-    select, input[type="text"], textarea {
+    input[type="text"],
+    input[type="password"],
+    textarea {
       width: 100%;
       padding: 6px;
       border-radius: 3px;
@@ -201,6 +204,10 @@
       margin-top: 4px;
     }
 
+    /* экраны */
+    .page { display: none; }
+    .page-active { display: block; }
+
     @media (max-width: 860px) {
       .layout {
         grid-template-columns: 170px minmax(0, 1fr);
@@ -225,131 +232,200 @@
   </style>
 </head>
 <body>
-  <!-- Верхняя синяя шапка -->
+  <!-- Шапка -->
   <div class="topbar">
     <div class="topbar-logo">@type</div>
     <div class="topbar-search">
-      <input type="text" placeholder="Поиск">
+      <input type="text" placeholder="Поиск (пока не работает)">
     </div>
     <div class="topbar-right" id="topbarUser">
-      Гость
+      Не авторизован
     </div>
   </div>
 
-  <div class="layout">
-    <!-- Левое меню -->
-    <nav class="left-menu">
-      <div class="left-menu-section">
-        <div class="section-title">Разделы</div>
-        <a href="#">Моя страница</a>
-        <a href="#">Новости</a>
-        <a href="#">Сообщения</a>
-        <a href="#">Друзья</a>
-        <a href="#">Группы</a>
-        <a href="#">Фотографии</a>
-      </div>
-      <div class="left-menu-section">
-        <div class="section-title">@type</div>
-        <a href="#">Настройки</a>
-        <a href="#">Помощь</a>
-      </div>
-    </nav>
+  <!-- Экран логина/регистрации -->
+  <div id="page-auth" class="page page-active" style="max-width:360px;margin:40px auto;">
+    <div class="card">
+      <div class="card-header">Вход в @type</div>
+      <div class="card-body">
+        <label for="loginName">Логин</label>
+        <input type="text" id="loginName" placeholder="логин">
 
-    <!-- Центр: форма + лента -->
-    <main class="content">
-      <!-- Выбор пользователя -->
-      <div class="card">
-        <div class="card-header">Пользователь</div>
-        <div class="card-body">
-          <label for="userSelect">Текущий пользователь</label>
-          <select id="userSelect"></select>
+        <label for="loginPass" style="margin-top:6px;">Пароль</label>
+        <input type="password" id="loginPass" placeholder="пароль">
 
-          <label for="newUserInput" style="margin-top:6px;">Добавить пользователя</label>
-          <input type="text" id="newUserInput" placeholder="Имя, например: You">
-
-          <div class="btn-group">
-            <button class="btn-secondary" id="addUserBtn">Добавить</button>
-            <button class="btn-danger" id="deleteUserBtn">Удалить выбранного</button>
-          </div>
-          <div class="small">
-            Все данные хранятся только в этом браузере (localStorage).
-          </div>
+        <div class="btn-group">
+          <button class="btn-primary" id="loginBtn">Войти</button>
+          <button class="btn-secondary" id="registerBtn">Зарегистрироваться</button>
+        </div>
+        <div class="small" id="authHint">
+          Аккаунты и пароли хранятся локально в этом браузере (localStorage).
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Форма поста и лента -->
-      <div class="card">
-        <div class="card-header">Новости</div>
-        <div class="card-body">
-          <label for="postInput">Что у вас нового?</label>
-          <textarea id="postInput" placeholder="Напишите что‑нибудь..."></textarea>
-          <div class="btn-group">
-            <button class="btn-primary" id="addPostBtn">Отправить</button>
-            <button class="btn-secondary" id="clearPostsBtn">Очистить ленту</button>
-          </div>
+  <!-- Основной layout (после входа) -->
+  <div id="page-app" class="page">
+    <div class="layout">
+      <!-- Левое меню -->
+      <nav class="left-menu">
+        <div class="left-menu-section">
+          <div class="section-title">Разделы</div>
+          <a data-nav="profile">Моя страница</a>
+          <a data-nav="news">Новости</a>
+          <a data-nav="messages">Сообщения</a>
         </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">Лента</div>
-        <div class="card-body">
-          <div id="postsContainer" class="posts"></div>
+        <div class="left-menu-section">
+          <div class="section-title">@type</div>
+          <a data-nav="settings">Настройки</a>
+          <a id="logoutLink">Выход</a>
         </div>
-      </div>
-    </main>
+      </nav>
 
-    <!-- Правая колонка -->
-    <aside class="right-column">
-      <div class="card">
-        <div class="card-header">Статистика</div>
-        <div class="card-body" id="statsBox">
-          Пользователи: 0<br>
-          Посты: 0
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">Реклама</div>
-        <div class="card-body">
-          <div class="small">
-            Здесь могла бы быть ваша реклама.<br>
-            @type — экспериментальная мини‑соцсеть.
+      <!-- Центр -->
+      <main class="content">
+        <!-- страница профиль -->
+        <div id="section-profile" class="page page-active">
+          <div class="card">
+            <div class="card-header">Моя страница</div>
+            <div class="card-body">
+              <div id="profileInfo"></div>
+              <label for="statusInput" style="margin-top:6px;">Статус</label>
+              <input type="text" id="statusInput" placeholder="Напишите статус...">
+              <div class="btn-group">
+                <button class="btn-primary" id="saveStatusBtn">Сохранить статус</button>
+              </div>
+              <div class="small">
+                Профиль и статус привязаны к вашему логину и хранятся в localStorage.
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </aside>
+
+        <!-- страница новости -->
+        <div id="section-news" class="page">
+          <div class="card">
+            <div class="card-header">Новый пост</div>
+            <div class="card-body">
+              <label for="postInput">Что у вас нового?</label>
+              <textarea id="postInput" placeholder="Напишите что‑нибудь..."></textarea>
+              <div class="btn-group">
+                <button class="btn-primary" id="addPostBtn">Отправить</button>
+                <button class="btn-secondary" id="clearMyPostsBtn">Очистить мои посты</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">Моя лента</div>
+            <div class="card-body">
+              <div id="postsContainer" class="posts"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- страница сообщения (заглушка) -->
+        <div id="section-messages" class="page">
+          <div class="card">
+            <div class="card-header">Сообщения</div>
+            <div class="card-body">
+              <div class="small">
+                Здесь позже может появиться простой локальный чат между аккаунтами.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- страница настройки -->
+        <div id="section-settings" class="page">
+          <div class="card">
+            <div class="card-header">Настройки аккаунта</div>
+            <div class="card-body">
+              <div class="small">
+                Здесь можно будет менять пароль или удалять аккаунт.
+                Пока доступна только смена статуса на странице профиля.
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Правая колонка -->
+      <aside class="right-column">
+        <div class="card">
+          <div class="card-header">Инфо</div>
+          <div class="card-body" id="infoBox">
+            Не авторизован.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">Подсказка</div>
+          <div class="card-body">
+            <div class="small">
+              @type — учебная мини‑соцсеть.<br>
+              Регистрация и логин работают только в этом браузере.
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
   </div>
 
   <script>
-    // Ключи localStorage
-    const STORAGE_KEY_USERS = 'atype_users';
-    const STORAGE_KEY_POSTS = 'atype_posts';
+    // Ключи в localStorage
+    const STORAGE_KEY_USERS = 'atype_users_v2';
+    const STORAGE_KEY_POSTS = 'atype_posts_v2';
+    const STORAGE_KEY_CURRENT = 'atype_current_user';
 
-    const userSelect    = document.getElementById('userSelect');
-    const newUserInput  = document.getElementById('newUserInput');
-    const addUserBtn    = document.getElementById('addUserBtn');
-    const deleteUserBtn = document.getElementById('deleteUserBtn');
+    // DOM
+    const pageAuth = document.getElementById('page-auth');
+    const pageApp  = document.getElementById('page-app');
 
-    const postInput     = document.getElementById('postInput');
-    const addPostBtn    = document.getElementById('addPostBtn');
-    const clearPostsBtn = document.getElementById('clearPostsBtn');
-    const postsContainer= document.getElementById('postsContainer');
-    const statsBox      = document.getElementById('statsBox');
-    const topbarUser    = document.getElementById('topbarUser');
+    const loginName = document.getElementById('loginName');
+    const loginPass = document.getElementById('loginPass');
+    const loginBtn  = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const authHint  = document.getElementById('authHint');
+
+    const topbarUser = document.getElementById('topbarUser');
+    const infoBox    = document.getElementById('infoBox');
+    const logoutLink = document.getElementById('logoutLink');
+
+    const profileInfo   = document.getElementById('profileInfo');
+    const statusInput   = document.getElementById('statusInput');
+    const saveStatusBtn = document.getElementById('saveStatusBtn');
+
+    const postInput       = document.getElementById('postInput');
+    const addPostBtn      = document.getElementById('addPostBtn');
+    const clearMyPostsBtn = document.getElementById('clearMyPostsBtn');
+    const postsContainer  = document.getElementById('postsContainer');
+
+    const sections = {
+      profile: document.getElementById('section-profile'),
+      news: document.getElementById('section-news'),
+      messages: document.getElementById('section-messages'),
+      settings: document.getElementById('section-settings')
+    };
+
+    let users = []; // {login, passHash, status}
+    let posts = []; // {author, text, time}
+    let currentUser = null; // строка login
 
     function loadUsers() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY_USERS);
-        if (!raw) return ['Я', 'Друг', 'You'];
+        if (!raw) return [];
         const arr = JSON.parse(raw);
-        if (Array.isArray(arr) && arr.length > 0) return arr;
-        return ['Я', 'Друг', 'You'];
+        if (Array.isArray(arr)) return arr;
+        return [];
       } catch {
-        return ['Я', 'Друг', 'You'];
+        return [];
       }
     }
 
-    function saveUsers(users) {
+    function saveUsers() {
       localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
     }
 
@@ -358,55 +434,82 @@
         const raw = localStorage.getItem(STORAGE_KEY_POSTS);
         if (!raw) return [];
         const arr = JSON.parse(raw);
-        if (!Array.isArray(arr)) return [];
-        return arr.map(p => ({
-          author: p.author || 'Unknown',
-          text:   p.text   || '',
-          time:   p.time   || new Date().toISOString()
-        }));
+        if (Array.isArray(arr)) return arr;
+        return [];
       } catch {
         return [];
       }
     }
 
-    function savePosts(posts) {
+    function savePosts() {
       localStorage.setItem(STORAGE_KEY_POSTS, JSON.stringify(posts));
     }
 
-    let users = loadUsers();
-    let posts = loadPosts();
-
-    function renderUsers() {
-      userSelect.innerHTML = '';
-      users.forEach(u => {
-        const opt = document.createElement('option');
-        opt.value = u;
-        opt.textContent = u;
-        userSelect.appendChild(opt);
-      });
-      if (users.length > 0) {
-        userSelect.value = users[0];
-        topbarUser.textContent = users[0];
+    function setCurrentUser(login) {
+      currentUser = login;
+      if (login) {
+        localStorage.setItem(STORAGE_KEY_CURRENT, login);
       } else {
-        topbarUser.textContent = 'Гость';
+        localStorage.removeItem(STORAGE_KEY_CURRENT);
       }
-      updateStats();
+    }
+
+    function getUserByLogin(login) {
+      return users.find(u => u.login === login) || null;
+    }
+
+    function simpleHash(str) {
+      // НЕ безопасно, только для демо
+      let h = 0;
+      for (let i = 0; i < str.length; i++) {
+        h = (h * 31 + str.charCodeAt(i)) | 0;
+      }
+      return h.toString();
+    }
+
+    // Рендер
+    function renderAuthState() {
+      if (currentUser) {
+        pageAuth.classList.remove('page-active');
+        pageApp.classList.add('page-active');
+        topbarUser.textContent = currentUser;
+        infoBox.textContent = 'Вы вошли как ' + currentUser;
+        renderProfile();
+        renderPosts();
+      } else {
+        pageAuth.classList.add('page-active');
+        pageApp.classList.remove('page-active');
+        topbarUser.textContent = 'Не авторизован';
+        infoBox.textContent = 'Не авторизован.';
+      }
+    }
+
+    function renderProfile() {
+      if (!currentUser) return;
+      const user = getUserByLogin(currentUser);
+      if (!user) return;
+      profileInfo.innerHTML =
+        '<b>Логин:</b> ' + user.login + '<br>' +
+        '<b>Статус:</b> ' + (user.status || 'нет статуса');
+      statusInput.value = user.status || '';
     }
 
     function renderPosts() {
       postsContainer.innerHTML = '';
-      if (posts.length === 0) {
+      if (!currentUser) return;
+      const myPosts = posts
+        .filter(p => p.author === currentUser)
+        .sort((a, b) => new Date(b.time) - new Date(a.time));
+
+      if (myPosts.length === 0) {
         const div = document.createElement('div');
         div.className = 'empty';
-        div.textContent = 'В ленте пока нет записей.';
+        div.textContent = 'У вас пока нет постов.';
         postsContainer.appendChild(div);
-        updateStats();
         return;
       }
 
-      const sorted = [...posts].sort((a, b) => new Date(b.time) - new Date(a.time));
-
-      for (const p of sorted) {
+      for (const p of myPosts) {
         const postEl = document.createElement('div');
         postEl.className = 'post';
 
@@ -433,99 +536,133 @@
         postEl.appendChild(text);
         postsContainer.appendChild(postEl);
       }
-
-      updateStats();
     }
 
-    function updateStats() {
-      const uniqueUsers = new Set(users);
-      statsBox.innerHTML =
-        'Пользователи: ' + uniqueUsers.size + '<br>' +
-        'Посты: ' + posts.length;
+    function showSection(name) {
+      Object.entries(sections).forEach(([key, el]) => {
+        if (key === name) el.classList.add('page-active');
+        else el.classList.remove('page-active');
+      });
     }
 
-    function addUser() {
-      const name = (newUserInput.value || '').trim();
-      if (!name) {
-        alert('Введите имя пользователя.');
+    // Логика: регистрация / вход
+    function handleRegister() {
+      const login = (loginName.value || '').trim();
+      const pass = (loginPass.value || '').trim();
+      if (!login || !pass) {
+        authHint.textContent = 'Введите логин и пароль для регистрации.';
         return;
       }
-      if (users.includes(name)) {
-        alert('Такой пользователь уже есть.');
+      if (getUserByLogin(login)) {
+        authHint.textContent = 'Такой логин уже существует.';
         return;
       }
-      users.push(name);
-      saveUsers(users);
-      renderUsers();
-      userSelect.value = name;
-      topbarUser.textContent = name;
-      newUserInput.value = '';
+      const user = {
+        login,
+        passHash: simpleHash(pass),
+        status: ''
+      };
+      users.push(user);
+      saveUsers();
+      authHint.textContent = 'Аккаунт создан, теперь можно войти.';
     }
 
-    function deleteUser() {
-      const current = userSelect.value;
-      if (!current) {
-        alert('Нет выбранного пользователя.');
+    function handleLogin() {
+      const login = (loginName.value || '').trim();
+      const pass = (loginPass.value || '').trim();
+      if (!login || !pass) {
+        authHint.textContent = 'Введите логин и пароль.';
         return;
       }
-      if (!confirm(`Удалить пользователя "${current}"? Его посты останутся.`)) {
+      const user = getUserByLogin(login);
+      if (!user) {
+        authHint.textContent = 'Аккаунт не найден. Нажмите "Зарегистрироваться".';
         return;
       }
-      users = users.filter(u => u !== current);
-      if (users.length === 0) {
-        users = ['You'];
+      if (user.passHash !== simpleHash(pass)) {
+        authHint.textContent = 'Неверный пароль.';
+        return;
       }
-      saveUsers(users);
-      renderUsers();
+      setCurrentUser(login);
+      authHint.textContent = '';
+      renderAuthState();
+      showSection('news');
     }
 
-    function addPost() {
-      const currentUser = userSelect.value;
-      if (!currentUser) {
-        alert('Выберите пользователя.');
-        return;
-      }
+    function handleLogout() {
+      setCurrentUser(null);
+      renderAuthState();
+    }
+
+    function handleSaveStatus() {
+      if (!currentUser) return;
+      const user = getUserByLogin(currentUser);
+      if (!user) return;
+      user.status = statusInput.value || '';
+      saveUsers();
+      renderProfile();
+    }
+
+    function handleAddPost() {
+      if (!currentUser) return;
       const text = (postInput.value || '').trim();
       if (!text) {
         alert('Нельзя опубликовать пустой пост.');
         return;
       }
-      const post = {
+      posts.push({
         author: currentUser,
-        text: text,
+        text,
         time: new Date().toISOString()
-      };
-      posts.push(post);
-      savePosts(posts);
-      renderPosts();
+      });
+      savePosts();
       postInput.value = '';
-    }
-
-    function clearPosts() {
-      if (!confirm('Удалить все записи из ленты?')) return;
-      posts = [];
-      savePosts(posts);
       renderPosts();
     }
 
-    addUserBtn.addEventListener('click', addUser);
-    deleteUserBtn.addEventListener('click', deleteUser);
-    addPostBtn.addEventListener('click', addPost);
-    clearPostsBtn.addEventListener('click', clearPosts);
+    function handleClearMyPosts() {
+      if (!currentUser) return;
+      if (!confirm('Удалить все ваши посты?')) return;
+      posts = posts.filter(p => p.author !== currentUser);
+      savePosts();
+      renderPosts();
+    }
+
+    // Навигация по меню
+    document.querySelectorAll('.left-menu a[data-nav]').forEach(a => {
+      a.addEventListener('click', () => {
+        const target = a.getAttribute('data-nav');
+        if (!currentUser) return;
+        if (target === 'profile') showSection('profile');
+        if (target === 'news') showSection('news');
+        if (target === 'messages') showSection('messages');
+        if (target === 'settings') showSection('settings');
+      });
+    });
+
+    // События
+    registerBtn.addEventListener('click', handleRegister);
+    loginBtn.addEventListener('click', handleLogin);
+    logoutLink.addEventListener('click', handleLogout);
+
+    saveStatusBtn.addEventListener('click', handleSaveStatus);
+    addPostBtn.addEventListener('click', handleAddPost);
+    clearMyPostsBtn.addEventListener('click', handleClearMyPosts);
 
     postInput.addEventListener('keydown', e => {
       if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-        addPost();
+        handleAddPost();
       }
     });
 
-    userSelect.addEventListener('change', () => {
-      const v = userSelect.value;
-      topbarUser.textContent = v || 'Гость';
-    });
-
-    renderUsers();
-    renderPosts();
+    // Инициализация
+    users = loadUsers();
+    posts = loadPosts();
+    const savedUser = localStorage.getItem(STORAGE_KEY_CURRENT);
+    if (savedUser && getUserByLogin(savedUser)) {
+      currentUser = savedUser;
+    }
+    renderAuthState();
   </script>
 </body>
 </html>
