@@ -190,3 +190,342 @@
     }
 
     .empty {
+      font-size: 12px;
+      color: #777;
+      text-align: center;
+      padding: 12px 0;
+    }
+    .small {
+      font-size: 11px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 860px) {
+      .layout {
+        grid-template-columns: 170px minmax(0, 1fr);
+        grid-template-rows: auto auto;
+        grid-template-areas:
+          "left content"
+          "left right";
+      }
+      .right-column {
+        grid-column: 1 / 3;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .layout {
+        display: block;
+      }
+      .left-menu, .right-column {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Верхняя синяя шапка -->
+  <div class="topbar">
+    <div class="topbar-logo">@type</div>
+    <div class="topbar-search">
+      <input type="text" placeholder="Поиск">
+    </div>
+    <div class="topbar-right" id="topbarUser">
+      Гость
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- Левое меню -->
+    <nav class="left-menu">
+      <div class="left-menu-section">
+        <div class="section-title">Разделы</div>
+        <a href="#">Моя страница</a>
+        <a href="#">Новости</a>
+        <a href="#">Сообщения</a>
+        <a href="#">Друзья</a>
+        <a href="#">Группы</a>
+        <a href="#">Фотографии</a>
+      </div>
+      <div class="left-menu-section">
+        <div class="section-title">@type</div>
+        <a href="#">Настройки</a>
+        <a href="#">Помощь</a>
+      </div>
+    </nav>
+
+    <!-- Центр: форма + лента -->
+    <main class="content">
+      <!-- Выбор пользователя -->
+      <div class="card">
+        <div class="card-header">Пользователь</div>
+        <div class="card-body">
+          <label for="userSelect">Текущий пользователь</label>
+          <select id="userSelect"></select>
+
+          <label for="newUserInput" style="margin-top:6px;">Добавить пользователя</label>
+          <input type="text" id="newUserInput" placeholder="Имя, например: You">
+
+          <div class="btn-group">
+            <button class="btn-secondary" id="addUserBtn">Добавить</button>
+            <button class="btn-danger" id="deleteUserBtn">Удалить выбранного</button>
+          </div>
+          <div class="small">
+            Все данные хранятся только в этом браузере (localStorage).
+          </div>
+        </div>
+      </div>
+
+      <!-- Форма поста и лента -->
+      <div class="card">
+        <div class="card-header">Новости</div>
+        <div class="card-body">
+          <label for="postInput">Что у вас нового?</label>
+          <textarea id="postInput" placeholder="Напишите что‑нибудь..."></textarea>
+          <div class="btn-group">
+            <button class="btn-primary" id="addPostBtn">Отправить</button>
+            <button class="btn-secondary" id="clearPostsBtn">Очистить ленту</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Лента</div>
+        <div class="card-body">
+          <div id="postsContainer" class="posts"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Правая колонка -->
+    <aside class="right-column">
+      <div class="card">
+        <div class="card-header">Статистика</div>
+        <div class="card-body" id="statsBox">
+          Пользователи: 0<br>
+          Посты: 0
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Реклама</div>
+        <div class="card-body">
+          <div class="small">
+            Здесь могла бы быть ваша реклама.<br>
+            @type — экспериментальная мини‑соцсеть.
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    // Ключи localStorage
+    const STORAGE_KEY_USERS = 'atype_users';
+    const STORAGE_KEY_POSTS = 'atype_posts';
+
+    const userSelect    = document.getElementById('userSelect');
+    const newUserInput  = document.getElementById('newUserInput');
+    const addUserBtn    = document.getElementById('addUserBtn');
+    const deleteUserBtn = document.getElementById('deleteUserBtn');
+
+    const postInput     = document.getElementById('postInput');
+    const addPostBtn    = document.getElementById('addPostBtn');
+    const clearPostsBtn = document.getElementById('clearPostsBtn');
+    const postsContainer= document.getElementById('postsContainer');
+    const statsBox      = document.getElementById('statsBox');
+    const topbarUser    = document.getElementById('topbarUser');
+
+    function loadUsers() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY_USERS);
+        if (!raw) return ['Я', 'Друг', 'You'];
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr) && arr.length > 0) return arr;
+        return ['Я', 'Друг', 'You'];
+      } catch {
+        return ['Я', 'Друг', 'You'];
+      }
+    }
+
+    function saveUsers(users) {
+      localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+    }
+
+    function loadPosts() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY_POSTS);
+        if (!raw) return [];
+        const arr = JSON.parse(raw);
+        if (!Array.isArray(arr)) return [];
+        return arr.map(p => ({
+          author: p.author || 'Unknown',
+          text:   p.text   || '',
+          time:   p.time   || new Date().toISOString()
+        }));
+      } catch {
+        return [];
+      }
+    }
+
+    function savePosts(posts) {
+      localStorage.setItem(STORAGE_KEY_POSTS, JSON.stringify(posts));
+    }
+
+    let users = loadUsers();
+    let posts = loadPosts();
+
+    function renderUsers() {
+      userSelect.innerHTML = '';
+      users.forEach(u => {
+        const opt = document.createElement('option');
+        opt.value = u;
+        opt.textContent = u;
+        userSelect.appendChild(opt);
+      });
+      if (users.length > 0) {
+        userSelect.value = users[0];
+        topbarUser.textContent = users[0];
+      } else {
+        topbarUser.textContent = 'Гость';
+      }
+      updateStats();
+    }
+
+    function renderPosts() {
+      postsContainer.innerHTML = '';
+      if (posts.length === 0) {
+        const div = document.createElement('div');
+        div.className = 'empty';
+        div.textContent = 'В ленте пока нет записей.';
+        postsContainer.appendChild(div);
+        updateStats();
+        return;
+      }
+
+      const sorted = [...posts].sort((a, b) => new Date(b.time) - new Date(a.time));
+
+      for (const p of sorted) {
+        const postEl = document.createElement('div');
+        postEl.className = 'post';
+
+        const header = document.createElement('div');
+        header.className = 'post-header';
+
+        const author = document.createElement('span');
+        author.className = 'post-author';
+        author.textContent = p.author;
+
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'post-time';
+        const dt = new Date(p.time || Date.now());
+        timeSpan.textContent = dt.toLocaleString();
+
+        header.appendChild(author);
+        header.appendChild(timeSpan);
+
+        const text = document.createElement('div');
+        text.className = 'post-text';
+        text.textContent = p.text;
+
+        postEl.appendChild(header);
+        postEl.appendChild(text);
+        postsContainer.appendChild(postEl);
+      }
+
+      updateStats();
+    }
+
+    function updateStats() {
+      const uniqueUsers = new Set(users);
+      statsBox.innerHTML =
+        'Пользователи: ' + uniqueUsers.size + '<br>' +
+        'Посты: ' + posts.length;
+    }
+
+    function addUser() {
+      const name = (newUserInput.value || '').trim();
+      if (!name) {
+        alert('Введите имя пользователя.');
+        return;
+      }
+      if (users.includes(name)) {
+        alert('Такой пользователь уже есть.');
+        return;
+      }
+      users.push(name);
+      saveUsers(users);
+      renderUsers();
+      userSelect.value = name;
+      topbarUser.textContent = name;
+      newUserInput.value = '';
+    }
+
+    function deleteUser() {
+      const current = userSelect.value;
+      if (!current) {
+        alert('Нет выбранного пользователя.');
+        return;
+      }
+      if (!confirm(`Удалить пользователя "${current}"? Его посты останутся.`)) {
+        return;
+      }
+      users = users.filter(u => u !== current);
+      if (users.length === 0) {
+        users = ['You'];
+      }
+      saveUsers(users);
+      renderUsers();
+    }
+
+    function addPost() {
+      const currentUser = userSelect.value;
+      if (!currentUser) {
+        alert('Выберите пользователя.');
+        return;
+      }
+      const text = (postInput.value || '').trim();
+      if (!text) {
+        alert('Нельзя опубликовать пустой пост.');
+        return;
+      }
+      const post = {
+        author: currentUser,
+        text: text,
+        time: new Date().toISOString()
+      };
+      posts.push(post);
+      savePosts(posts);
+      renderPosts();
+      postInput.value = '';
+    }
+
+    function clearPosts() {
+      if (!confirm('Удалить все записи из ленты?')) return;
+      posts = [];
+      savePosts(posts);
+      renderPosts();
+    }
+
+    addUserBtn.addEventListener('click', addUser);
+    deleteUserBtn.addEventListener('click', deleteUser);
+    addPostBtn.addEventListener('click', addPost);
+    clearPostsBtn.addEventListener('click', clearPosts);
+
+    postInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        addPost();
+      }
+    });
+
+    userSelect.addEventListener('change', () => {
+      const v = userSelect.value;
+      topbarUser.textContent = v || 'Гость';
+    });
+
+    renderUsers();
+    renderPosts();
+  </script>
+</body>
+</html>
