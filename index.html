@@ -408,8 +408,12 @@
           <div class="card">
             <div class="card-header">Моя лента</div>
             <div class="card-body">
-              <div style="display:flex;gap:6px;margin-bottom:6px;">
-                <input type="text" id="feedSearchInput" placeholder="Поиск по авторам и тексту..." style="flex:1;">
+              <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
+                <select id="feedFilterSelect" style="padding:6px 8px;border-radius:6px;border:1px solid #c5d0db;">
+                  <option value="all">Все посты</option>
+                  <option value="friends">Только друзей</option>
+                </select>
+                <input type="text" id="feedSearchInput" placeholder="Поиск по авторам и тексту..." style="flex:1;min-width:140px;">
                 <button class="btn-secondary" id="feedSearchClearBtn">Сброс</button>
               </div>
               <div id="postsContainer" class="posts"></div>
@@ -448,7 +452,29 @@
             <div class="card-body">
               <div class="small">
                 В этой версии можно менять статус, ставить аватар по URL, добавлять друзей и переписываться.  
-                Позже можно прикрутить загрузку файлов и аватарки с сервера.
+                Плюс есть скрытая админ‑панель для модерации.
+              </div>
+
+              <hr style="margin:10px 0;border:none;border-top:1px solid #e5ebf1;">
+
+              <div id="adminPanel" style="display:none;">
+                <div class="small" style="margin-bottom:6px;">
+                  Админ‑панель (видна только тестовому администратору).
+                </div>
+
+                <label for="adminTargetUser">Пользователь для действий</label>
+                <input type="text" id="adminTargetUser" placeholder="логин пользователя">
+
+                <div class="btn-group">
+                  <button class="btn-secondary" id="adminMuteBtn">Mute 30 мин</button>
+                  <button class="btn-secondary" id="adminUnmuteBtn">Снять mute</button>
+                </div>
+
+                <div class="btn-group">
+                  <button class="btn-secondary" id="adminCleanupBtn">Удалить пустые аккаунты</button>
+                </div>
+
+                <div class="small" id="adminHint"></div>
               </div>
             </div>
           </div>
@@ -473,7 +499,6 @@
       </aside>
     </div>
   </div>
-
   <script>
     const API_BASE = 'https://atype-backend.onrender.com';
 
@@ -521,6 +546,14 @@
 
     const feedSearchInput    = document.getElementById('feedSearchInput');
     const feedSearchClearBtn = document.getElementById('feedSearchClearBtn');
+    const feedFilterSelect   = document.getElementById('feedFilterSelect');
+
+    const adminPanel      = document.getElementById('adminPanel');
+    const adminTargetUser = document.getElementById('adminTargetUser');
+    const adminMuteBtn    = document.getElementById('adminMuteBtn');
+    const adminUnmuteBtn  = document.getElementById('adminUnmuteBtn');
+    const adminCleanupBtn = document.getElementById('adminCleanupBtn');
+    const adminHint       = document.getElementById('adminHint');
 
     const sections = {
       profile: document.getElementById('section-profile'),
@@ -535,6 +568,7 @@
     let totalLikes = 0;
     let currentDialogWith = null;
     let allFeedPosts = [];
+    let friendsCache = [];
 
     function getInitials(login) {
       if (!login) return '?';
@@ -609,12 +643,23 @@
         topbarUser.appendChild(wrap);
 
         infoBox.textContent = 'Вы вошли как ' + currentUser;
+
+        // показать админ-панель только тестовому админу
+        if (adminPanel) {
+          if (currentUser === 'testa acc') {
+            adminPanel.style.display = 'block';
+          } else {
+            adminPanel.style.display = 'none';
+          }
+        }
+
         renderProfile();
       } else {
         pageAuth.classList.add('page-active');
         pageApp.classList.remove('page-active');
         topbarUser.innerHTML = '<div class="avatar-small">?</div><span>Не авторизован</span>';
         infoBox.textContent = 'Не авторизован.';
+        if (adminPanel) adminPanel.style.display = 'none';
       }
     }
 
@@ -667,6 +712,7 @@
       for (const p of sorted) {
         const postEl = document.createElement('div');
         postEl.className = 'post';
+        const postId = p.id;
 
         const avatar = document.createElement('div');
         avatar.className = 'post-avatar';
@@ -721,8 +767,34 @@
           likeSpan.textContent = '♥ ' + likeCount;
           statsBox.innerHTML = 'Постов: ' + sorted.length + '<br>Лайков: ' + totalLikes;
         });
-
         footer.appendChild(likeSpan);
+
+        // кнопка удаления: свои посты или админ
+        if (p.author === currentUser || currentUser === 'testa acc') {
+          const delBtn = document.createElement('span');
+          delBtn.style.cursor = 'pointer';
+          delBtn.style.color = '#c0392b';
+          delBtn.textContent = 'удалить';
+          delBtn.addEventListener('click', async () => {
+            if (!confirm('Удалить пост?')) return;
+            try {
+              const resp = await fetch(
+                API_BASE + '/api/posts/' + encodeURIComponent(postId) +
+                '?author=' + encodeURIComponent(currentUser),
+                { method: 'DELETE' }
+              );
+              const data = await resp.json();
+              if (!resp.ok) {
+                alert(data.error || 'Не удалось удалить пост');
+                return;
+              }
+              await fetchFeed();
+            } catch {
+              alert('Сервер недоступен.');
+            }
+          });
+          footer.appendChild(delBtn);
+        }
 
         main.appendChild(header);
         main.appendChild(text);
@@ -763,7 +835,7 @@
           return;
         }
         authHint.textContent = 'Аккаунт создан, теперь можно войти.';
-      } catch (e) {
+      } catch {
         authHint.textContent = 'Сервер недоступен.';
       }
     }
@@ -795,7 +867,7 @@
         await fetchFeed();
         await fetchDialogs();
         await fetchFriends();
-      } catch (e) {
+      } catch {
         authHint.textContent = 'Сервер недоступен.';
       }
     }
@@ -837,9 +909,9 @@
       postHint.textContent = 'Загружаем ваши посты...';
       try {
         const resp = await fetch(API_BASE + '/api/posts?author=' + encodeURIComponent(currentUser));
-        await resp.json(); // свои посты сейчас отдельно не показываем — только ленту
+        await resp.json();
         postHint.textContent = '';
-      } catch (e) {
+      } catch {
         postHint.textContent = 'Не удалось загрузить посты.';
       }
     }
@@ -857,21 +929,28 @@
         allFeedPosts = data;
         postHint.textContent = '';
         applyFeedFilter();
-      } catch (e) {
+      } catch {
         postHint.textContent = 'Не удалось загрузить ленту.';
       }
     }
 
     function applyFeedFilter() {
       const q = (feedSearchInput.value || '').trim().toLowerCase();
+      const mode = feedFilterSelect.value;
       let list = allFeedPosts;
+
+      if (mode === 'friends') {
+        list = list.filter(p => friendsCache.includes(p.author));
+      }
+
       if (q) {
-        list = allFeedPosts.filter(p => {
+        list = list.filter(p => {
           const t = (p.text || '').toLowerCase();
           const a = (p.author || '').toLowerCase();
           return t.includes(q) || a.includes(q);
         });
       }
+
       renderPostsFromArray(list);
     }
 
@@ -895,7 +974,7 @@
         }
         postInput.value = '';
         await fetchFeed();
-      } catch (e) {
+      } catch {
         alert('Сервер недоступен.');
       }
     }
@@ -912,15 +991,17 @@
           return;
         }
         renderFriends(data);
-      } catch (e) {
+      } catch {
         friendsList.textContent = 'Сервер недоступен.';
       }
     }
 
     function renderFriends(list) {
+      friendsCache = Array.isArray(list) ? list.slice() : [];
       friendsList.innerHTML = '';
       if (!list || list.length === 0) {
         friendsList.textContent = 'У вас пока нет друзей.';
+        applyFeedFilter();
         return;
       }
       const ul = document.createElement('div');
@@ -939,6 +1020,7 @@
         ul.appendChild(row);
       });
       friendsList.appendChild(ul);
+      applyFeedFilter();
     }
 
     async function handleAddFriend() {
@@ -967,7 +1049,7 @@
         friendsHint.textContent = 'Друг добавлен.';
         addFriendInput.value = '';
         await fetchFriends();
-      } catch (e) {
+      } catch {
         friendsHint.textContent = 'Сервер недоступен.';
       }
     }
@@ -979,7 +1061,7 @@
         const resp = await fetch(API_BASE + '/api/dialogs?user=' + encodeURIComponent(currentUser));
         const data = await resp.json();
         renderDialogs(data);
-      } catch (e) {
+      } catch {
         dialogsList.textContent = 'Не удалось загрузить диалоги.';
       }
     }
@@ -1006,11 +1088,22 @@
       });
     }
 
+    async function updateOnlineStatus(login) {
+      try {
+        const resp = await fetch(API_BASE + '/api/online?login=' + encodeURIComponent(login));
+        const data = await resp.json();
+        if (!resp.ok) return;
+        const status = data.online ? ' (в сети)' : ' (не в сети)';
+        chatTitle.textContent = 'Диалог с ' + login + status;
+      } catch {}
+    }
+
     async function openChatWith(withUser) {
       if (!currentUser || !withUser) return;
       chatTitle.textContent = 'Диалог с ' + withUser;
       chatMessages.innerHTML = 'Загрузка...';
       chatHint.textContent = '';
+      updateOnlineStatus(withUser);
       try {
         const resp = await fetch(
           API_BASE + '/api/messages?user=' + encodeURIComponent(currentUser) +
@@ -1018,7 +1111,7 @@
         );
         const data = await resp.json();
         renderChatMessages(data);
-      } catch (e) {
+      } catch {
         chatMessages.textContent = 'Не удалось загрузить сообщения.';
       }
     }
@@ -1074,8 +1167,76 @@
         chatHint.textContent = '';
         await openChatWith(currentDialogWith);
         await fetchDialogs();
-      } catch (e) {
+      } catch {
         chatHint.textContent = 'Сервер недоступен.';
+      }
+    }
+
+    async function adminMute() {
+      const user = (adminTargetUser.value || '').trim();
+      if (!user) {
+        adminHint.textContent = 'Укажите логин пользователя.';
+        return;
+      }
+      adminHint.textContent = 'Отправка mute...';
+      try {
+        const resp = await fetch(API_BASE + '/api/admin/mute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ admin: currentUser, user, minutes: 30 })
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          adminHint.textContent = data.error || 'Ошибка mute.';
+          return;
+        }
+        adminHint.textContent = 'Пользователь ' + user + ' в mute до ' + data.mutedUntil;
+      } catch {
+        adminHint.textContent = 'Сервер недоступен.';
+      }
+    }
+
+    async function adminUnmute() {
+      const user = (adminTargetUser.value || '').trim();
+      if (!user) {
+        adminHint.textContent = 'Укажите логин пользователя.';
+        return;
+      }
+      adminHint.textContent = 'Снимаем mute...';
+      try {
+        const resp = await fetch(API_BASE + '/api/admin/unmute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ admin: currentUser, user })
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          adminHint.textContent = data.error || 'Ошибка unmute.';
+          return;
+        }
+        adminHint.textContent = 'Mute снят с ' + user;
+      } catch {
+        adminHint.textContent = 'Сервер недоступен.';
+      }
+    }
+
+    async function adminCleanupUsers() {
+      if (!confirm('Удалить все пустые аккаунты (без постов и друзей)?')) return;
+      adminHint.textContent = 'Чистим пользователей...';
+      try {
+        const resp = await fetch(API_BASE + '/api/admin/cleanup-users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ admin: currentUser })
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          adminHint.textContent = data.error || 'Ошибка очистки.';
+          return;
+        }
+        adminHint.textContent = 'Удалено аккаунтов: ' + data.removed.length;
+      } catch {
+        adminHint.textContent = 'Сервер недоступен.';
       }
     }
 
@@ -1132,6 +1293,11 @@
       feedSearchInput.value = '';
       applyFeedFilter();
     });
+    feedFilterSelect.addEventListener('change', applyFeedFilter);
+
+    adminMuteBtn.addEventListener('click', adminMute);
+    adminUnmuteBtn.addEventListener('click', adminUnmute);
+    adminCleanupBtn.addEventListener('click', adminCleanupUsers);
 
     (async function init() {
       const savedUser = localStorage.getItem(STORAGE_KEY_CURRENT);
