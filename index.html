@@ -7,26 +7,20 @@
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      min-height: 100vh;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #4a76a8 0, #101722 55%, #050608 100%);
-      color: #f5f7fa;
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
+      background: radial-gradient(circle at top, #f0f4ff 0, #e9edf1 40%, #dde3ea 100%);
     }
-    a { color: #8ab4ff; text-decoration: none; }
+    a { color: #2a5885; text-decoration: none; }
 
     /* Шапка */
     .topbar {
       height: 52px;
-      background: rgba(5, 11, 20, 0.9);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      background: linear-gradient(90deg,#4a76a8,#355d88);
       color: #fff;
       display: flex;
       align-items: center;
       padding: 0 20px;
-      backdrop-filter: blur(14px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.18);
       position: sticky;
       top: 0;
       z-index: 10;
@@ -34,190 +28,171 @@
     .topbar-logo {
       font-weight: 800;
       font-size: 20px;
-      letter-spacing: 0.04em;
-      margin-right: 16px;
+      margin-right: 18px;
+      letter-spacing: 0.02em;
     }
     .topbar-logo span {
-      color: #8ab4ff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(0,0,0,0.12);
     }
     .topbar-search {
       flex: 1;
+      max-width: 360px;
     }
     .topbar-search input {
       width: 100%;
-      max-width: 320px;
       padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(10, 20, 35, 0.9);
-      color: #f5f7fa;
+      border-radius: 14px;
+      border: none;
       font-size: 13px;
       outline: none;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
     }
     .topbar-search input::placeholder {
-      color: rgba(245,247,250,0.45);
+      color: rgba(255,255,255,0.7);
     }
     .topbar-right {
       margin-left: auto;
       font-size: 13px;
       opacity: 0.9;
-    }
-
-    /* Центровка приложения */
-    .app-shell {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      padding: 24px 12px 32px;
-    }
-    .app-frame {
-      width: 100%;
-      max-width: 980px;
-      min-height: 520px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: radial-gradient(circle at top left, rgba(255,255,255,0.12), rgba(9,16,28,0.96));
-      box-shadow:
-        0 18px 40px rgba(0,0,0,0.55),
-        0 0 0 1px rgba(255,255,255,0.02);
-      overflow: hidden;
-      display: grid;
-      grid-template-columns: 220px minmax(0, 1fr) 230px;
-      gap: 0;
-      color: #e8edf6;
-    }
-
-    /* Левое меню */
-    .sidebar {
-      padding: 16px 14px;
-      border-right: 1px solid rgba(255,255,255,0.08);
-      background: linear-gradient(180deg, rgba(10,20,35,0.85), rgba(7,13,23,0.95));
-      font-size: 13px;
-    }
-    .sidebar-section {
-      margin-bottom: 14px;
-    }
-    .sidebar-title {
-      font-size: 11px;
-      text-transform: uppercase;
-      color: rgba(211,220,235,0.7);
-      margin-bottom: 6px;
-      letter-spacing: 0.06em;
-    }
-    .menu-item {
-      padding: 6px 8px;
-      border-radius: 8px;
       display: flex;
       align-items: center;
       gap: 8px;
-      color: #dbe4ff;
-      cursor: pointer;
-      transition: background 0.12s ease, transform 0.05s ease;
     }
-    .menu-item span.icon {
-      width: 20px;
-      text-align: center;
-      opacity: 0.8;
-    }
-    .menu-item:hover {
-      background: rgba(138,180,255,0.12);
-      transform: translateY(-0.5px);
-    }
-    .menu-item.active {
-      background: linear-gradient(90deg, rgba(138,180,255,0.2), rgba(138,180,255,0.05));
-      border: 1px solid rgba(138,180,255,0.45);
+    .avatar-small {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #f5f7fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #355d88;
+      font-weight: 700;
     }
 
-    /* Контент */
+    /* layout */
+    .layout {
+      max-width: 980px;
+      margin: 16px auto 32px;
+      display: grid;
+      grid-template-columns: 210px minmax(0, 1fr) 230px;
+      gap: 14px;
+      padding: 0 10px;
+    }
+
+    .left-menu {
+      font-size: 13px;
+    }
+    .left-menu-section {
+      margin-bottom: 10px;
+      background: rgba(255,255,255,0.85);
+      border-radius: 8px;
+      padding: 6px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border: 1px solid #d3dde7;
+    }
+    .left-menu a {
+      display: block;
+      padding: 4px 12px;
+      color: #2a5885;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .left-menu a:hover {
+      background: #dfe6f1;
+    }
+    .left-menu .section-title {
+      padding: 4px 12px 2px;
+      color: #777;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+    }
+
     .content {
-      padding: 16px 16px 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      background: radial-gradient(circle at top, rgba(22,35,60,0.92), rgba(6,10,18,0.98));
+      font-size: 13px;
+    }
+
+    .right-column {
+      font-size: 12px;
     }
 
     .card {
-      background: rgba(9,17,32,0.9);
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.06);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
-      padding: 10px 12px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      border: 1px solid #d3dde7;
+      margin-bottom: 10px;
+      overflow: hidden;
     }
     .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-    .card-title {
+      padding: 8px 10px;
+      border-bottom: 1px solid #e5ebf1;
       font-weight: 600;
-      font-size: 14px;
-      color: #f5f7fa;
+      font-size: 13px;
+      background: #f5f7fa;
     }
-    .card-sub {
-      font-size: 11px;
-      color: rgba(214,222,235,0.7);
+    .card-body {
+      padding: 10px;
     }
+
     label {
       display: block;
       margin-bottom: 4px;
-      font-size: 12px;
-      color: rgba(214,222,235,0.85);
+      color: #555;
     }
+
     input[type="text"],
     input[type="password"],
     textarea {
       width: 100%;
-      padding: 7px 9px;
-      border-radius: 9px;
-      border: 1px solid rgba(197,208,219,0.5);
-      background: rgba(6,11,22,0.9);
-      color: #f5f7fa;
+      padding: 7px 8px;
+      border-radius: 6px;
+      border: 1px solid #c5d0db;
       font-size: 13px;
       font-family: inherit;
-      outline: none;
-    }
-    input::placeholder,
-    textarea::placeholder {
-      color: rgba(180,192,210,0.55);
+      background: #fbfcfe;
     }
     textarea {
       resize: vertical;
-      min-height: 58px;
-      max-height: 170px;
+      min-height: 60px;
+      max-height: 180px;
     }
 
     button {
       border: none;
-      border-radius: 999px;
-      padding: 6px 14px;
+      border-radius: 16px;
+      padding: 6px 12px;
       font-size: 12px;
       cursor: pointer;
       font-family: inherit;
-      transition: background 0.12s ease, transform 0.05s ease, box-shadow 0.12s ease;
-      white-space: nowrap;
+      transition: background 0.15s, transform 0.05s;
+    }
+    button:active {
+      transform: translateY(1px);
     }
     .btn-primary {
-      background: linear-gradient(135deg, #8ab4ff, #4a76a8);
-      color: #05080f;
-      box-shadow: 0 6px 16px rgba(138,180,255,0.35);
+      background: #4a76a8;
+      color: #fff;
     }
     .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 24px rgba(138,180,255,0.4);
+      background: #3b6088;
     }
     .btn-secondary {
-      background: rgba(229,235,241,0.1);
-      color: #dbe4ff;
-      border: 1px solid rgba(229,235,241,0.25);
+      background: #e5ebf1;
+      color: #2a5885;
     }
-
+    .btn-secondary:hover {
+      background: #d6deea;
+    }
     .btn-group {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
       margin-top: 6px;
     }
 
@@ -225,244 +200,253 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      max-height: 420px;
+      max-height: 430px;
       overflow-y: auto;
       padding-right: 4px;
     }
 
     .post {
-      border-radius: 12px;
-      padding: 7px 9px;
-      background: linear-gradient(135deg, rgba(26,34,54,0.95), rgba(9,15,27,0.98));
-      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 8px;
+      padding: 8px 9px;
+      background: #f5f7fa;
+      border: 1px solid #e5ebf1;
+      display: flex;
+      gap: 8px;
+    }
+    .post-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #dfe6f1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #2a5885;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .post-main {
+      flex: 1;
     }
     .post-header {
       display: flex;
       justify-content: space-between;
       gap: 6px;
       font-size: 12px;
-      color: rgba(200,211,228,0.85);
+      color: #777;
+      align-items: center;
     }
     .post-author {
       font-weight: 600;
-      color: #dbe4ff;
+      color: #2a5885;
     }
     .post-time {
       white-space: nowrap;
-      color: rgba(176,188,205,0.8);
+      font-size: 11px;
     }
     .post-text {
       margin-top: 4px;
       font-size: 13px;
-      color: #f5f7fa;
+      color: #000;
       white-space: pre-wrap;
       word-wrap: break-word;
+    }
+    .post-footer {
+      margin-top: 4px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: 11px;
+      color: #777;
+    }
+    .like-btn {
+      cursor: pointer;
+      color: #2a5885;
     }
 
     .empty {
       font-size: 12px;
-      color: rgba(176,188,205,0.85);
+      color: #777;
       text-align: center;
-      padding: 10px 0;
+      padding: 12px 0;
     }
     .small {
       font-size: 11px;
-      color: rgba(170,182,200,0.85);
+      color: #888;
       margin-top: 4px;
     }
 
-    /* Правая колонка */
-    .rightbar {
-      padding: 14px 14px 12px;
-      border-left: 1px solid rgba(255,255,255,0.08);
-      background: linear-gradient(180deg, rgba(9,15,27,0.97), rgba(5,9,17,0.98));
-      font-size: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    /* Экран логина */
-    .auth-overlay {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: radial-gradient(circle at top, rgba(10,16,30,0.9), rgba(1,1,3,0.96));
-      z-index: 20;
-    }
-    .auth-card {
-      width: 100%;
-      max-width: 360px;
-      padding: 18px 18px 16px;
-      border-radius: 18px;
-      background: radial-gradient(circle at top left, rgba(255,255,255,0.09), rgba(9,12,23,0.97));
-      border: 1px solid rgba(255,255,255,0.14);
-      box-shadow:
-        0 18px 40px rgba(0,0,0,0.8),
-        0 0 0 1px rgba(255,255,255,0.02);
-    }
-    .auth-title {
-      font-size: 16px;
-      font-weight: 650;
-      margin-bottom: 4px;
-    }
-    .auth-sub {
-      font-size: 12px;
-      color: rgba(205,214,230,0.85);
-      margin-bottom: 10px;
-    }
-
-    /* страницы */
+    /* экраны */
     .page { display: none; }
     .page-active { display: block; }
 
-    @media (max-width: 900px) {
-      .app-frame {
-        grid-template-columns: 64px minmax(0, 1fr);
+    /* экран авторизации */
+    #page-auth {
+      max-width: 360px;
+      margin: 50px auto;
+    }
+
+    @media (max-width: 880px) {
+      .layout {
+        grid-template-columns: 190px minmax(0, 1fr);
       }
-      .rightbar { display: none; }
-      .sidebar {
-        padding: 12px 6px;
-      }
-      .sidebar-title { display: none; }
-      .menu-item span.label { display: none; }
-      .menu-item {
-        justify-content: center;
+      .right-column {
+        display: none;
       }
     }
 
-    @media (max-width: 640px) {
-      .app-frame {
-        max-width: 100%;
-        border-radius: 0;
-        border: none;
+    @media (max-width: 680px) {
+      .layout {
+        display: block;
       }
-      .topbar { border-radius: 0; }
+      .left-menu {
+        display: none;
+      }
+      #page-auth {
+        margin-top: 24px;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Шапка -->
   <div class="topbar">
-    <div class="topbar-logo">@<span>type</span></div>
+    <div class="topbar-logo"><span>@type</span></div>
     <div class="topbar-search">
-      <input type="text" placeholder="Поиск по @type (пока только декор)">
+      <input type="text" placeholder="Поиск (пока не работает)">
     </div>
     <div class="topbar-right" id="topbarUser">
-      Не авторизован
+      <div class="avatar-small">?</div>
+      <span>Не авторизован</span>
     </div>
   </div>
 
   <!-- Экран логина/регистрации -->
-  <div id="page-auth" class="auth-overlay">
-    <div class="auth-card">
-      <div class="auth-title">Вход в @type</div>
-      <div class="auth-sub">Создай локальный аккаунт и зайди в свою мини‑ленту.</div>
+  <div id="page-auth" class="page page-active">
+    <div class="card">
+      <div class="card-header">Вход в @type</div>
+      <div class="card-body">
+        <label for="loginName">Логин</label>
+        <input type="text" id="loginName" placeholder="логин">
 
-      <label for="loginName">Логин</label>
-      <input type="text" id="loginName" placeholder="логин">
+        <label for="loginPass" style="margin-top:6px;">Пароль</label>
+        <input type="password" id="loginPass" placeholder="пароль">
 
-      <label for="loginPass" style="margin-top:6px;">Пароль</label>
-      <input type="password" id="loginPass" placeholder="пароль">
-
-      <div class="btn-group" style="margin-top:10px;">
-        <button class="btn-primary" id="loginBtn">Войти</button>
-        <button class="btn-secondary" id="registerBtn">Зарегистрироваться</button>
-      </div>
-      <div class="small" id="authHint">
-        Аккаунты и посты хранятся локально в этом браузере (без сети).
+        <div class="btn-group">
+          <button class="btn-primary" id="loginBtn">Войти</button>
+          <button class="btn-secondary" id="registerBtn">Зарегистрироваться</button>
+        </div>
+        <div class="small" id="authHint">
+          Аккаунты и посты хранятся на сервере @type‑backend, логин нужен по‑настоящему.
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="app-shell">
-    <div class="app-frame">
+  <!-- Основной layout (после входа) -->
+  <div id="page-app" class="page">
+    <div class="layout">
       <!-- Левое меню -->
-      <aside class="sidebar">
-        <div class="sidebar-section">
-          <div class="sidebar-title">Навигация</div>
-          <div class="menu-item active" data-nav="news">
-            <span class="icon">★</span><span class="label">Лента</span>
-          </div>
-          <div class="menu-item" data-nav="profile">
-            <span class="icon">☺</span><span class="label">Профиль</span>
-          </div>
+      <nav class="left-menu">
+        <div class="left-menu-section">
+          <div class="section-title">Разделы</div>
+          <a data-nav="profile">Моя страница</a>
+          <a data-nav="news">Моя лента</a>
+          <a data-nav="messages">Сообщения</a>
         </div>
-        <div class="sidebar-section">
-          <div class="sidebar-title">Аккаунт</div>
-          <div class="menu-item" id="logoutLink">
-            <span class="icon">⇦</span><span class="label">Выход</span>
-          </div>
+        <div class="left-menu-section">
+          <div class="section-title">@type</div>
+          <a data-nav="settings">Настройки</a>
+          <a id="logoutLink">Выход</a>
         </div>
-      </aside>
+      </nav>
 
       <!-- Центр -->
       <main class="content">
-        <!-- страница новости -->
-        <section id="section-news" class="page page-active">
+        <!-- профиль -->
+        <div id="section-profile" class="page page-active">
           <div class="card">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Что у вас нового?</div>
-                <div class="card-sub">Запишите мысль — она появится в вашей ленте.</div>
+            <div class="card-header">Моя страница</div>
+            <div class="card-body">
+              <div style="display:flex;gap:10px;align-items:center;margin-bottom:6px;">
+                <div class="avatar-small" id="profileAvatar">?</div>
+                <div id="profileInfo"></div>
+              </div>
+              <label for="statusInput" style="margin-top:6px;">Статус</label>
+              <input type="text" id="statusInput" placeholder="Напишите статус...">
+              <div class="btn-group">
+                <button class="btn-primary" id="saveStatusBtn">Сохранить статус</button>
+              </div>
+              <div class="small">
+                Профиль и статус пока хранятся локально в этом браузере, но логин/посты уже через сеть.
               </div>
             </div>
-            <label for="postInput">Текст поста</label>
-            <textarea id="postInput" placeholder="Напишите что‑нибудь..."></textarea>
-            <div class="btn-group">
-              <button class="btn-primary" id="addPostBtn">Опубликовать</button>
+          </div>
+        </div>
+
+        <!-- новости -->
+        <div id="section-news" class="page">
+          <div class="card">
+            <div class="card-header">Новый пост</div>
+            <div class="card-body">
+              <label for="postInput">Что у вас нового?</label>
+              <textarea id="postInput" placeholder="Напишите что‑нибудь..."></textarea>
+              <div class="btn-group">
+                <button class="btn-primary" id="addPostBtn">Опубликовать</button>
+              </div>
+              <div class="small" id="postHint"></div>
             </div>
           </div>
 
           <div class="card">
-            <div class="card-header">
-              <div class="card-title">Моя лента</div>
-              <div class="card-sub" id="feedSub">Вы ещё ничего не публиковали.</div>
+            <div class="card-header">Моя лента</div>
+            <div class="card-body">
+              <div id="postsContainer" class="posts"></div>
             </div>
-            <div id="postsContainer" class="posts"></div>
           </div>
-        </section>
+        </div>
 
-        <!-- страница профиль -->
-        <section id="section-profile" class="page">
+        <!-- сообщения (заглушка) -->
+        <div id="section-messages" class="page">
           <div class="card">
-            <div class="card-header">
-              <div class="card-title">Мой профиль</div>
-            </div>
-            <div id="profileInfo" class="small" style="margin-bottom:8px;"></div>
-
-            <label for="statusInput">Статус</label>
-            <input type="text" id="statusInput" placeholder="Напишите статус...">
-            <div class="btn-group">
-              <button class="btn-primary" id="saveStatusBtn">Сохранить статус</button>
-            </div>
-            <div class="small">
-              Профиль и статус привязаны к вашему логину и живут в localStorage на этом устройстве.
+            <div class="card-header">Сообщения</div>
+            <div class="card-body">
+              <div class="small">
+                Здесь позже можно сделать мини‑чат между аккаунтами через тот же бэкенд.
+              </div>
             </div>
           </div>
-        </section>
+        </div>
+
+        <!-- настройки -->
+        <div id="section-settings" class="page">
+          <div class="card">
+            <div class="card-header">Настройки аккаунта</div>
+            <div class="card-body">
+              <div class="small">
+                В этой версии можно менять только статус и выходить из аккаунта.  
+                Позже можно добавить смену пароля и удаление аккаунта.
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
 
       <!-- Правая колонка -->
-      <aside class="rightbar">
+      <aside class="right-column">
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">Инфо</div>
-          </div>
+          <div class="card-header">Инфо</div>
           <div class="card-body" id="infoBox">
             Не авторизован.
           </div>
         </div>
+
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">@type</div>
-          </div>
-          <div class="card-body">
-            <div class="small">
-              Это учебная мини‑соцсеть.  
-              Локальные аккаунты, локальные посты, «вайб‑кодинг» без настоящего бэкенда.
-            </div>
+          <div class="card-header">Статистика</div>
+          <div class="card-body" id="statsBox">
+            Постов: 0<br>
+            Лайков: 0
           </div>
         </div>
       </aside>
@@ -470,17 +454,16 @@
   </div>
 
   <script>
-    // локальное «хранилище»
-    const STORAGE_KEY_USERS = 'atype_users_ui';
-    const STORAGE_KEY_POSTS = 'atype_posts_ui';
-    const STORAGE_KEY_CURRENT = 'atype_current_ui';
+    const API_BASE = 'https://atype-backend.onrender.com';
 
-    let users = []; // {login, passHash, status}
-    let posts = []; // {author, text, time}
-    let currentUser = null;
+    // Ключи localStorage для локальных штук
+    const STORAGE_KEY_CURRENT = 'atype_current_user_net';
+    const STORAGE_KEY_STATUSES = 'atype_statuses';
 
     // DOM
     const pageAuth = document.getElementById('page-auth');
+    const pageApp  = document.getElementById('page-app');
+
     const loginName = document.getElementById('loginName');
     const loginPass = document.getElementById('loginPass');
     const loginBtn  = document.getElementById('loginBtn');
@@ -492,109 +475,101 @@
     const logoutLink = document.getElementById('logoutLink');
 
     const profileInfo   = document.getElementById('profileInfo');
+    const profileAvatar = document.getElementById('profileAvatar');
     const statusInput   = document.getElementById('statusInput');
     const saveStatusBtn = document.getElementById('saveStatusBtn');
 
     const postInput       = document.getElementById('postInput');
     const addPostBtn      = document.getElementById('addPostBtn');
     const postsContainer  = document.getElementById('postsContainer');
-    const feedSub         = document.getElementById('feedSub');
+    const postHint        = document.getElementById('postHint');
+    const statsBox        = document.getElementById('statsBox');
 
     const sections = {
+      profile: document.getElementById('section-profile'),
       news: document.getElementById('section-news'),
-      profile: document.getElementById('section-profile')
+      messages: document.getElementById('section-messages'),
+      settings: document.getElementById('section-settings')
     };
 
-    function loadUsers() {
+    let currentUser = null;
+    let currentPosts = [];
+    let totalLikes = 0;
+
+    function getInitials(login) {
+      if (!login) return '?';
+      return login.trim().charAt(0).toUpperCase();
+    }
+
+    function loadStatuses() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY_USERS);
-        if (!raw) return [];
-        const arr = JSON.parse(raw);
-        if (Array.isArray(arr)) return arr;
-        return [];
+        const raw = localStorage.getItem(STORAGE_KEY_STATUSES);
+        if (!raw) return {};
+        const obj = JSON.parse(raw);
+        return obj && typeof obj === 'object' ? obj : {};
       } catch {
-        return [];
+        return {};
       }
     }
 
-    function saveUsers() {
-      localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
-    }
-
-    function loadPosts() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY_POSTS);
-        if (!raw) return [];
-        const arr = JSON.parse(raw);
-        if (Array.isArray(arr)) return arr;
-        return [];
-      } catch {
-        return [];
-      }
-    }
-
-    function savePosts() {
-      localStorage.setItem(STORAGE_KEY_POSTS, JSON.stringify(posts));
-    }
-
-    function simpleHash(str) {
-      let h = 0;
-      for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
-      return h.toString();
-    }
-
-    function getUser(login) {
-      return users.find(u => u.login === login) || null;
-    }
-
-    function setCurrentUser(login) {
-      currentUser = login;
-      if (login) localStorage.setItem(STORAGE_KEY_CURRENT, login);
-      else localStorage.removeItem(STORAGE_KEY_CURRENT);
+    function saveStatuses(statuses) {
+      localStorage.setItem(STORAGE_KEY_STATUSES, JSON.stringify(statuses));
     }
 
     function renderAuthState() {
       if (currentUser) {
-        pageAuth.style.display = 'none';
-        topbarUser.textContent = currentUser;
+        pageAuth.classList.remove('page-active');
+        pageApp.classList.add('page-active');
+        const initials = getInitials(currentUser);
+        topbarUser.innerHTML = '<div class="avatar-small">' + initials + '</div><span>' + currentUser + '</span>';
         infoBox.textContent = 'Вы вошли как ' + currentUser;
         renderProfile();
-        renderPosts();
       } else {
-        pageAuth.style.display = 'flex';
-        topbarUser.textContent = 'Не авторизован';
+        pageAuth.classList.add('page-active');
+        pageApp.classList.remove('page-active');
+        topbarUser.innerHTML = '<div class="avatar-small">?</div><span>Не авторизован</span>';
         infoBox.textContent = 'Не авторизован.';
       }
     }
 
     function renderProfile() {
       if (!currentUser) return;
-      const u = getUser(currentUser);
-      if (!u) return;
+      const statuses = loadStatuses();
+      const status = statuses[currentUser] || 'нет статуса';
       profileInfo.innerHTML =
-        '<b>Логин:</b> ' + u.login + '<br>' +
-        '<b>Статус:</b> ' + (u.status || 'нет статуса');
-      statusInput.value = u.status || '';
+        '<b>Логин:</b> ' + currentUser + '<br>' +
+        '<b>Статус:</b> ' + status;
+      profileAvatar.textContent = getInitials(currentUser);
+      statusInput.value = statuses[currentUser] || '';
     }
 
-    function renderPosts() {
+    function renderPostsFromArray(arr) {
+      currentPosts = arr || [];
       postsContainer.innerHTML = '';
       if (!currentUser) return;
-      const myPosts = posts
-        .filter(p => p.author === currentUser)
-        .sort((a, b) => new Date(b.time) - new Date(a.time));
-      if (myPosts.length === 0) {
+
+      if (!arr || arr.length === 0) {
         const div = document.createElement('div');
         div.className = 'empty';
         div.textContent = 'У вас пока нет постов.';
         postsContainer.appendChild(div);
-        feedSub.textContent = 'Вы ещё ничего не публиковали.';
+        statsBox.innerHTML = 'Постов: 0<br>Лайков: ' + totalLikes;
         return;
       }
-      feedSub.textContent = 'Всего записей: ' + myPosts.length;
-      for (const p of myPosts) {
+
+      const sorted = [...arr].sort((a, b) => new Date(b.time) - new Date(a.time));
+      let likes = 0;
+
+      for (const p of sorted) {
         const postEl = document.createElement('div');
         postEl.className = 'post';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'post-avatar';
+        avatar.textContent = getInitials(p.author);
+
+        const main = document.createElement('div');
+        main.className = 'post-main';
 
         const header = document.createElement('div');
         header.className = 'post-header';
@@ -615,10 +590,33 @@
         text.className = 'post-text';
         text.textContent = p.text;
 
-        postEl.appendChild(header);
-        postEl.appendChild(text);
+        const footer = document.createElement('div');
+        footer.className = 'post-footer';
+
+        const likeSpan = document.createElement('span');
+        likeSpan.className = 'like-btn';
+        likeSpan.textContent = '♡ 0';
+        let likeCount = 0;
+        likeSpan.addEventListener('click', () => {
+          likeCount++;
+          totalLikes++;
+          likeSpan.textContent = '♥ ' + likeCount;
+          statsBox.innerHTML = 'Постов: ' + sorted.length + '<br>Лайков: ' + totalLikes;
+        });
+
+        footer.appendChild(likeSpan);
+
+        main.appendChild(header);
+        main.appendChild(text);
+        main.appendChild(footer);
+
+        postEl.appendChild(avatar);
+        postEl.appendChild(main);
+
         postsContainer.appendChild(postEl);
       }
+
+      statsBox.innerHTML = 'Постов: ' + sorted.length + '<br>Лайков: ' + totalLikes;
     }
 
     function showSection(name) {
@@ -626,82 +624,126 @@
         if (key === name) el.classList.add('page-active');
         else el.classList.remove('page-active');
       });
-      document.querySelectorAll('.menu-item[data-nav]').forEach(mi => {
-        mi.classList.toggle('active', mi.getAttribute('data-nav') === name);
-      });
     }
 
-    // регистрация / логин
-    function handleRegister() {
+    async function handleRegister() {
       const login = (loginName.value || '').trim();
       const pass = (loginPass.value || '').trim();
       if (!login || !pass) {
         authHint.textContent = 'Введите логин и пароль для регистрации.';
         return;
       }
-      if (getUser(login)) {
-        authHint.textContent = 'Такой логин уже существует.';
-        return;
+      try {
+        const resp = await fetch(API_BASE + '/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ login, password: pass })
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          authHint.textContent = data.error || 'Ошибка регистрации.';
+          return;
+        }
+        authHint.textContent = 'Аккаунт создан, теперь можно войти.';
+      } catch (e) {
+        authHint.textContent = 'Сервер недоступен.';
       }
-      users.push({ login, passHash: simpleHash(pass), status: '' });
-      saveUsers();
-      authHint.textContent = 'Аккаунт создан, теперь можно войти.';
     }
 
-    function handleLogin() {
+    async function handleLogin() {
       const login = (loginName.value || '').trim();
       const pass = (loginPass.value || '').trim();
       if (!login || !pass) {
         authHint.textContent = 'Введите логин и пароль.';
         return;
       }
-      const u = getUser(login);
-      if (!u) {
-        authHint.textContent = 'Аккаунт не найден. Нажмите "Зарегистрироваться".';
-        return;
+      try {
+        const resp = await fetch(API_BASE + '/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ login, password: pass })
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          authHint.textContent = data.error || 'Ошибка входа.';
+          return;
+        }
+        currentUser = data.login;
+        localStorage.setItem(STORAGE_KEY_CURRENT, currentUser);
+        authHint.textContent = '';
+        renderAuthState();
+        showSection('news');
+        await fetchAndRenderPosts();
+      } catch (e) {
+        authHint.textContent = 'Сервер недоступен.';
       }
-      if (u.passHash !== simpleHash(pass)) {
-        authHint.textContent = 'Неверный пароль.';
-        return;
-      }
-      setCurrentUser(login);
-      authHint.textContent = '';
-      renderAuthState();
-      showSection('news');
     }
 
     function handleLogout() {
-      setCurrentUser(null);
+      currentUser = null;
+      localStorage.removeItem(STORAGE_KEY_CURRENT);
       renderAuthState();
     }
 
     function handleSaveStatus() {
       if (!currentUser) return;
-      const u = getUser(currentUser);
-      if (!u) return;
-      u.status = statusInput.value || '';
-      saveUsers();
+      const statuses = loadStatuses();
+      statuses[currentUser] = statusInput.value || '';
+      saveStatuses(statuses);
       renderProfile();
     }
 
-    function handleAddPost() {
+    async function fetchAndRenderPosts() {
+      if (!currentUser) return;
+      postHint.textContent = 'Загружаем посты...';
+      try {
+        const resp = await fetch(API_BASE + '/api/posts?author=' + encodeURIComponent(currentUser));
+        const data = await resp.json();
+        postHint.textContent = '';
+        renderPostsFromArray(data);
+      } catch (e) {
+        postHint.textContent = 'Не удалось загрузить посты.';
+      }
+    }
+
+    async function handleAddPost() {
       if (!currentUser) return;
       const text = (postInput.value || '').trim();
       if (!text) {
         alert('Нельзя опубликовать пустой пост.');
         return;
       }
-      posts.push({
-        author: currentUser,
-        text,
-        time: new Date().toISOString()
-      });
-      savePosts();
-      postInput.value = '';
-      renderPosts();
+      try {
+        const resp = await fetch(API_BASE + '/api/posts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ author: currentUser, text })
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          alert(data.error || 'Ошибка при создании поста.');
+          return;
+        }
+        postInput.value = '';
+        await fetchAndRenderPosts();
+      } catch (e) {
+        alert('Сервер недоступен.');
+      }
     }
 
-    // события
+    // Навигация по меню
+    document.querySelectorAll('.left-menu a[data-nav]').forEach(a => {
+      a.addEventListener('click', () => {
+        const target = a.getAttribute('data-nav');
+        if (!currentUser) return;
+        if (target === 'profile') showSection('profile');
+        if (target === 'news') showSection('news');
+        if (target === 'messages') showSection('messages');
+        if (target === 'settings') showSection('settings');
+      });
+    });
+
+    // События
     registerBtn.addEventListener('click', handleRegister);
     loginBtn.addEventListener('click', handleLogin);
     logoutLink.addEventListener('click', handleLogout);
@@ -715,19 +757,18 @@
       }
     });
 
-    document.querySelectorAll('.menu-item[data-nav]').forEach(mi => {
-      mi.addEventListener('click', () => {
-        if (!currentUser) return;
-        showSection(mi.getAttribute('data-nav'));
-      });
-    });
-
-    // init
-    users = loadUsers();
-    posts = loadPosts();
-    const saved = localStorage.getItem(STORAGE_KEY_CURRENT);
-    if (saved && getUser(saved)) currentUser = saved;
-    renderAuthState();
+    // Инициализация
+    (async function init() {
+      const savedUser = localStorage.getItem(STORAGE_KEY_CURRENT);
+      if (savedUser) {
+        currentUser = savedUser;
+      }
+      renderAuthState();
+      if (currentUser) {
+        await fetchAndRenderPosts();
+        showSection('news');
+      }
+    })();
   </script>
 </body>
 </html>
