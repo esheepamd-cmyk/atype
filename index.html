@@ -277,11 +277,9 @@
       margin-top: 4px;
     }
 
-    /* экраны */
     .page { display: none; }
     .page-active { display: block; }
 
-    /* экран авторизации */
     #page-auth {
       max-width: 360px;
       margin: 50px auto;
@@ -310,7 +308,6 @@
   </style>
 </head>
 <body>
-  <!-- Шапка -->
   <div class="topbar">
     <div class="topbar-logo"><span>@type</span></div>
     <div class="topbar-search">
@@ -322,7 +319,7 @@
     </div>
   </div>
 
-  <!-- Экран логина/регистрации -->
+  <!-- Авторизация -->
   <div id="page-auth" class="page page-active">
     <div class="card">
       <div class="card-header">Вход в @type</div>
@@ -338,16 +335,15 @@
           <button class="btn-secondary" id="registerBtn">Зарегистрироваться</button>
         </div>
         <div class="small" id="authHint">
-          Аккаунты и посты хранятся на сервере @type‑backend, логин нужен по‑настоящему.
+          Аккаунты, посты и сообщения хранятся на сервере @type‑backend.
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Основной layout (после входа) -->
+  <!-- Приложение -->
   <div id="page-app" class="page">
     <div class="layout">
-      <!-- Левое меню -->
       <nav class="left-menu">
         <div class="left-menu-section">
           <div class="section-title">Разделы</div>
@@ -362,9 +358,8 @@
         </div>
       </nav>
 
-      <!-- Центр -->
       <main class="content">
-        <!-- профиль -->
+        <!-- Профиль -->
         <div id="section-profile" class="page page-active">
           <div class="card">
             <div class="card-header">Моя страница</div>
@@ -379,13 +374,13 @@
                 <button class="btn-primary" id="saveStatusBtn">Сохранить статус</button>
               </div>
               <div class="small">
-                Профиль и статус пока хранятся локально в этом браузере, но логин/посты уже через сеть.
+                Статус — локальная фишка этого браузера, аккаунт и посты уже через сеть.
               </div>
             </div>
           </div>
         </div>
 
-        <!-- новости -->
+        <!-- Лента -->
         <div id="section-news" class="page">
           <div class="card">
             <div class="card-header">Новый пост</div>
@@ -407,33 +402,46 @@
           </div>
         </div>
 
-        <!-- сообщения (заглушка) -->
+        <!-- Сообщения -->
         <div id="section-messages" class="page">
           <div class="card">
             <div class="card-header">Сообщения</div>
-            <div class="card-body">
-              <div class="small">
-                Здесь позже можно сделать мини‑чат между аккаунтами через тот же бэкенд.
+            <div class="card-body" style="display:flex;gap:10px;min-height:220px;">
+              <!-- Диалоги -->
+              <div style="width:35%;max-width:180px;border-right:1px solid #e5ebf1;padding-right:6px;">
+                <div class="small" style="margin-bottom:4px;">Диалоги</div>
+                <div id="dialogsList" class="small">
+                  Загрузка...
+                </div>
+              </div>
+              <!-- Чат -->
+              <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+                <div id="chatTitle" class="small">Выберите собеседника слева.</div>
+                <div id="chatMessages" style="flex:1;border:1px solid #e5ebf1;border-radius:6px;padding:6px;overflow-y:auto;background:#f5f7fa;"></div>
+                <div style="display:flex;gap:6px;">
+                  <input type="text" id="chatInput" placeholder="Написать сообщение..." style="flex:1;">
+                  <button class="btn-primary" id="chatSendBtn">Отправить</button>
+                </div>
+                <div class="small" id="chatHint"></div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- настройки -->
+        <!-- Настройки -->
         <div id="section-settings" class="page">
           <div class="card">
             <div class="card-header">Настройки аккаунта</div>
             <div class="card-body">
               <div class="small">
-                В этой версии можно менять только статус и выходить из аккаунта.  
-                Позже можно добавить смену пароля и удаление аккаунта.
+                В этой версии можно менять только статус и пользоваться чатами.  
+                Позже можно добавить смену пароля и аватарки с сервера.
               </div>
             </div>
           </div>
         </div>
       </main>
 
-      <!-- Правая колонка -->
       <aside class="right-column">
         <div class="card">
           <div class="card-header">Инфо</div>
@@ -456,11 +464,9 @@
   <script>
     const API_BASE = 'https://atype-backend.onrender.com';
 
-    // Ключи localStorage для локальных штук
     const STORAGE_KEY_CURRENT = 'atype_current_user_net';
     const STORAGE_KEY_STATUSES = 'atype_statuses';
 
-    // DOM
     const pageAuth = document.getElementById('page-auth');
     const pageApp  = document.getElementById('page-app');
 
@@ -485,6 +491,13 @@
     const postHint        = document.getElementById('postHint');
     const statsBox        = document.getElementById('statsBox');
 
+    const dialogsList   = document.getElementById('dialogsList');
+    const chatTitle     = document.getElementById('chatTitle');
+    const chatMessages  = document.getElementById('chatMessages');
+    const chatInput     = document.getElementById('chatInput');
+    const chatSendBtn   = document.getElementById('chatSendBtn');
+    const chatHint      = document.getElementById('chatHint');
+
     const sections = {
       profile: document.getElementById('section-profile'),
       news: document.getElementById('section-news'),
@@ -495,6 +508,7 @@
     let currentUser = null;
     let currentPosts = [];
     let totalLikes = 0;
+    let currentDialogWith = null;
 
     function getInitials(login) {
       if (!login) return '?';
@@ -674,6 +688,7 @@
         renderAuthState();
         showSection('news');
         await fetchAndRenderPosts();
+        await fetchDialogs();
       } catch (e) {
         authHint.textContent = 'Сервер недоступен.';
       }
@@ -731,19 +746,127 @@
       }
     }
 
-    // Навигация по меню
+    async function fetchDialogs() {
+      if (!currentUser) return;
+      dialogsList.textContent = 'Загрузка...';
+      try {
+        const resp = await fetch(API_BASE + '/api/dialogs?user=' + encodeURIComponent(currentUser));
+        const data = await resp.json();
+        renderDialogs(data);
+      } catch (e) {
+        dialogsList.textContent = 'Не удалось загрузить диалоги.';
+      }
+    }
+
+    function renderDialogs(list) {
+      dialogsList.innerHTML = '';
+      if (!list || list.length === 0) {
+        dialogsList.textContent = 'Пока нет диалогов.';
+        return;
+      }
+      list.forEach(login => {
+        const item = document.createElement('div');
+        item.textContent = login;
+        item.style.cursor = 'pointer';
+        item.style.padding = '3px 4px';
+        item.style.borderRadius = '4px';
+        item.addEventListener('click', () => {
+          currentDialogWith = login;
+          Array.from(dialogsList.children).forEach(c => c.style.background = '');
+          item.style.background = '#dfe6f1';
+          openChatWith(login);
+        });
+        dialogsList.appendChild(item);
+      });
+    }
+
+    async function openChatWith(withUser) {
+      if (!currentUser || !withUser) return;
+      chatTitle.textContent = 'Диалог с ' + withUser;
+      chatMessages.innerHTML = 'Загрузка...';
+      chatHint.textContent = '';
+      try {
+        const resp = await fetch(
+          API_BASE + '/api/messages?user=' + encodeURIComponent(currentUser) +
+          '&with=' + encodeURIComponent(withUser)
+        );
+        const data = await resp.json();
+        renderChatMessages(data);
+      } catch (e) {
+        chatMessages.textContent = 'Не удалось загрузить сообщения.';
+      }
+    }
+
+    function renderChatMessages(msgs) {
+      chatMessages.innerHTML = '';
+      if (!msgs || msgs.length === 0) {
+        chatMessages.innerHTML = '<div class="small">Пока нет сообщений.</div>';
+        return;
+      }
+      msgs.forEach(m => {
+        const row = document.createElement('div');
+        row.style.marginBottom = '4px';
+        row.style.textAlign = m.from === currentUser ? 'right' : 'left';
+
+        const bubble = document.createElement('span');
+        bubble.textContent = m.text;
+        bubble.style.display = 'inline-block';
+        bubble.style.padding = '4px 6px';
+        bubble.style.borderRadius = '8px';
+        bubble.style.maxWidth = '80%';
+        bubble.style.wordWrap = 'break-word';
+        bubble.style.fontSize = '12px';
+        bubble.style.background = (m.from === currentUser) ? '#cfe4ff' : '#ffffff';
+
+        row.appendChild(bubble);
+        chatMessages.appendChild(row);
+      });
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function handleSendMessage() {
+      if (!currentUser) return;
+      if (!currentDialogWith) {
+        chatHint.textContent = 'Сначала выберите собеседника.';
+        return;
+      }
+      const text = (chatInput.value || '').trim();
+      if (!text) return;
+      chatHint.textContent = 'Отправка...';
+      try {
+        const resp = await fetch(API_BASE + '/api/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ from: currentUser, to: currentDialogWith, text })
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          chatHint.textContent = data.error || 'Ошибка отправки.';
+          return;
+        }
+        chatInput.value = '';
+        chatHint.textContent = '';
+        await openChatWith(currentDialogWith);
+        await fetchDialogs();
+      } catch (e) {
+        chatHint.textContent = 'Сервер недоступен.';
+      }
+    }
+
     document.querySelectorAll('.left-menu a[data-nav]').forEach(a => {
       a.addEventListener('click', () => {
         const target = a.getAttribute('data-nav');
         if (!currentUser) return;
         if (target === 'profile') showSection('profile');
         if (target === 'news') showSection('news');
-        if (target === 'messages') showSection('messages');
+        if (target === 'messages') {
+          showSection('messages');
+          fetchDialogs();
+        }
         if (target === 'settings') showSection('settings');
       });
     });
 
-    // События
     registerBtn.addEventListener('click', handleRegister);
     loginBtn.addEventListener('click', handleLogin);
     logoutLink.addEventListener('click', handleLogout);
@@ -757,7 +880,13 @@
       }
     });
 
-    // Инициализация
+    chatSendBtn.addEventListener('click', handleSendMessage);
+    chatInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        handleSendMessage();
+      }
+    });
+
     (async function init() {
       const savedUser = localStorage.getItem(STORAGE_KEY_CURRENT);
       if (savedUser) {
@@ -766,6 +895,7 @@
       renderAuthState();
       if (currentUser) {
         await fetchAndRenderPosts();
+        await fetchDialogs();
         showSection('news');
       }
     })();
