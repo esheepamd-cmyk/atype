@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>@type5 (25.12.2025/20:10) </title>
+  <title>@type — мини‑соцсеть</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -23,6 +23,21 @@
       position: sticky;
       top: 0;
       z-index: 10;
+    }
+    .topbar-burger {
+      display: none;
+      margin-right: 8px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.18);
+      color: #fff;
+      font-size: 18px;
+      line-height: 1;
+      text-align: center;
+      padding: 0;
+      border: none;
+      cursor: pointer;
     }
     .topbar-logo {
       font-weight: 800;
@@ -282,9 +297,13 @@
       margin: 50px auto;
     }
 
+    .left-menu-overlay {
+      display: none;
+    }
+
     @media (max-width: 880px) {
       .layout {
-        grid-template-columns: 190px minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr);
       }
       .right-column {
         display: none;
@@ -292,14 +311,48 @@
     }
 
     @media (max-width: 680px) {
-      .layout { display: block; }
-      .left-menu { display: none; }
+      .layout {
+        display: block;
+      }
+
+      .topbar-burger {
+        display: inline-block;
+      }
+
+      .left-menu {
+        position: fixed;
+        top: 52px;
+        left: -220px;
+        width: 200px;
+        z-index: 20;
+        background: rgba(255,255,255,0.97);
+        box-shadow: 2px 0 6px rgba(0,0,0,0.25);
+        transition: left 0.18s;
+        height: calc(100vh - 52px);
+        overflow-y: auto;
+      }
+      .left-menu.menu-open {
+        left: 0;
+      }
+
+      .left-menu-overlay {
+        display: none;
+        position: fixed;
+        inset: 52px 0 0 0;
+        background: rgba(0,0,0,0.25);
+        z-index: 15;
+      }
+      .left-menu-overlay.visible {
+        display: block;
+      }
+
       #page-auth { margin-top: 24px; }
     }
   </style>
 </head>
 <body>
   <div class="topbar">
+    <button class="topbar-burger" id="burgerBtn">☰</button>
     <div class="topbar-logo"><span>@type</span></div>
     <div class="topbar-search">
       <input type="text" placeholder="Поиск (по ленте внизу)">
@@ -310,6 +363,7 @@
     </div>
   </div>
 
+  <div id="page-auth" class="page page-active">
   <div id="page-auth" class="page page-active">
     <div class="card">
       <div class="card-header">Вход в @type</div>
@@ -332,6 +386,7 @@
   </div>
 
   <div id="page-app" class="page">
+    <div class="left-menu-overlay" id="menuOverlay"></div>
     <div class="layout">
       <nav class="left-menu">
         <div class="left-menu-section">
@@ -374,7 +429,7 @@
 
               <label style="margin-bottom:4px;">Мои друзья</label>
               <div class="small" id="friendsList">
-                Загрузка списка друзей...
+                У вас пока нет друзей.
               </div>
 
               <div class="btn-group" style="margin-top:8px;">
@@ -451,8 +506,7 @@
             <div class="card-header">Настройки аккаунта</div>
             <div class="card-body">
               <div class="small">
-                В этой версии можно менять статус, ставить аватар по URL, добавлять друзей и переписываться.  
-                Плюс есть скрытая админ‑панель для модерации.
+                нету пока
               </div>
 
               <hr style="margin:10px 0;border:none;border-top:1px solid #e5ebf1;">
@@ -555,6 +609,10 @@
     const adminCleanupBtn = document.getElementById('adminCleanupBtn');
     const adminHint       = document.getElementById('adminHint');
 
+    const burgerBtn   = document.getElementById('burgerBtn');
+    const menuOverlay = document.getElementById('menuOverlay');
+    const leftMenu    = document.querySelector('.left-menu');
+
     const sections = {
       profile: document.getElementById('section-profile'),
       news: document.getElementById('section-news'),
@@ -605,6 +663,18 @@
       localStorage.setItem(STORAGE_KEY_AVATARS, JSON.stringify(map));
     }
 
+    function openMenu() {
+      if (!leftMenu || !menuOverlay) return;
+      leftMenu.classList.add('menu-open');
+      menuOverlay.classList.add('visible');
+    }
+
+    function closeMenu() {
+      if (!leftMenu || !menuOverlay) return;
+      leftMenu.classList.remove('menu-open');
+      menuOverlay.classList.remove('visible');
+    }
+
     function renderAuthState() {
       if (currentUser) {
         pageAuth.classList.remove('page-active');
@@ -644,7 +714,6 @@
 
         infoBox.textContent = 'Вы вошли как ' + currentUser;
 
-        // показать админ-панель только тестовому админу
         if (adminPanel) {
           if (currentUser === 'testa acc') {
             adminPanel.style.display = 'block';
@@ -769,7 +838,6 @@
         });
         footer.appendChild(likeSpan);
 
-        // кнопка удаления: свои посты или админ
         if (p.author === currentUser || currentUser === 'testa acc') {
           const delBtn = document.createElement('span');
           delBtn.style.cursor = 'pointer';
@@ -1016,6 +1084,7 @@
           showSection('messages');
           openChatWith(name);
           fetchDialogs();
+          closeMenu();
         });
         ul.appendChild(row);
       });
@@ -1257,6 +1326,7 @@
           fetchDialogs();
         }
         if (target === 'settings') showSection('settings');
+        closeMenu();
       });
     });
 
@@ -1298,6 +1368,12 @@
     adminMuteBtn.addEventListener('click', adminMute);
     adminUnmuteBtn.addEventListener('click', adminUnmute);
     adminCleanupBtn.addEventListener('click', adminCleanupUsers);
+
+    burgerBtn.addEventListener('click', () => {
+      if (leftMenu.classList.contains('menu-open')) closeMenu();
+      else openMenu();
+    });
+    menuOverlay.addEventListener('click', closeMenu);
 
     (async function init() {
       const savedUser = localStorage.getItem(STORAGE_KEY_CURRENT);
