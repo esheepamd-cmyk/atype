@@ -800,6 +800,94 @@
         main.appendChild(text);
         main.appendChild(footer);
 
+        // COMMENTS
+    const commentsDiv = document.createElement('div');
+    commentsDiv.style.marginTop = '6px';
+    commentsDiv.style.borderTop = '1px solid #dfe6f1';
+    commentsDiv.style.paddingTop = '6px';
+    
+    const toggleCommentsBtn = document.createElement('span');
+    toggleCommentsBtn.style.cursor = 'pointer';
+    toggleCommentsBtn.style.color = '#2a5885';
+    toggleCommentsBtn.style.fontSize = '11px';
+    toggleCommentsBtn.textContent = 'Comments';
+    
+    const commentsList = document.createElement('div');
+    commentsList.style.display = 'none';
+    commentsList.style.marginTop = '6px';
+    
+    toggleCommentsBtn.addEventListener('click', async () => {
+      if (commentsList.style.display === 'none') {
+        try {
+          const resp = await fetch(`${API_BASE}/api/comments/${postId}`);
+          const comments = await resp.json();
+          commentsList.innerHTML = '';
+          if (comments && comments.length > 0) {
+            comments.forEach(c => {
+              const cRow = document.createElement('div');
+              cRow.style.padding = '4px 0';
+              cRow.style.fontSize = '11px';
+              cRow.innerHTML = `<b>${c.authorLogin}:</b> ${c.text}`;
+              commentsList.appendChild(cRow);
+            });
+          } else {
+            commentsList.innerHTML = '<div style="color:#777">No comments</div>';
+          }
+        } catch (e) {}
+        commentsList.style.display = 'block';
+        toggleCommentsBtn.textContent = 'Hide';
+      } else {
+        commentsList.style.display = 'none';
+        toggleCommentsBtn.textContent = 'Comments';
+      }
+    });
+    
+    const addCommentDiv = document.createElement('div');
+    addCommentDiv.style.marginTop = '6px';
+    addCommentDiv.style.display = 'flex';
+    addCommentDiv.style.gap = '4px';
+    
+    const commentInput = document.createElement('input');
+    commentInput.type = 'text';
+    commentInput.placeholder = 'Add comment...';
+    commentInput.style.flex = '1';
+    commentInput.style.padding = '4px 6px';
+    commentInput.style.fontSize = '11px';
+    commentInput.style.borderRadius = '4px';
+    commentInput.style.border = '1px solid #c5d0db';
+    
+    const commentBtn = document.createElement('button');
+    commentBtn.textContent = 'OK';
+    commentBtn.style.padding = '4px 8px';
+    commentBtn.style.fontSize = '11px';
+    commentBtn.style.background = '#4a76a8';
+    commentBtn.style.color = '#fff';
+    commentBtn.style.border = 'none';
+    commentBtn.style.borderRadius = '4px';
+    commentBtn.style.cursor = 'pointer';
+    
+    commentBtn.addEventListener('click', async () => {
+      const text = (commentInput.value || '').trim();
+      if (!text) return;
+      try {
+        await fetch(`${API_BASE}/api/comments/add`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ postId, authorLogin: currentUser, text })
+        });
+        commentInput.value = '';
+        toggleCommentsBtn.click();
+        toggleCommentsBtn.click();
+      } catch (e) {}
+    });
+    
+    addCommentDiv.appendChild(commentInput);
+    addCommentDiv.appendChild(commentBtn);
+    commentsDiv.appendChild(toggleCommentsBtn);
+    commentsDiv.appendChild(commentsList);
+    commentsDiv.appendChild(addCommentDiv);
+    main.appendChild(commentsDiv);
+
         postEl.appendChild(avatar);
         postEl.appendChild(main);
 
